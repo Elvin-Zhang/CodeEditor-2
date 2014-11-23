@@ -74,11 +74,18 @@ namespace Scripting.Controls
                 // We calculate the first and the last visible
                 // character in the textbox and return a substring
                 // of the whole text in the richtextbox.
-                int startpos = GetStartCharPos();
-                int endpos = GetLastCharPos();
-                int diff = (endpos - startpos) + 1;
+                if (TextLength != 0)
+                {
+                    int startpos = GetStartCharPos();
+                    int endpos = GetLastCharPos();
+                    int diff = (endpos - startpos) + 1;
 
-                return Text.Substring(startpos, diff);
+                    return Text.Substring(startpos, diff);
+                }
+                else
+                {
+                    return string.Empty;
+                }
             }
         }
 

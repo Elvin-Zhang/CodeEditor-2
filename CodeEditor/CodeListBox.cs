@@ -267,8 +267,12 @@ namespace Scripting.Controls
                 // in order to avoid null-argument-exceptions.
                 if (imageList != null)
                 {
-                    var bmp = imageList.Images[auto_item.ImageIndex];
-                    e.Graphics.DrawImage(bmp, empty_pnt);
+                    int image_index = auto_item.ImageIndex;
+                    if (image_index < imageList.Images.Count)
+                    {
+                        var bmp = imageList.Images[auto_item.ImageIndex];
+                        e.Graphics.DrawImage(bmp, empty_pnt);
+                    }
                 }
             }
         }

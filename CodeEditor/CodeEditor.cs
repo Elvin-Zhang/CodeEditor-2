@@ -642,6 +642,13 @@ namespace Scripting.Controls
                                     }
                                 }
                             }
+                            else
+                            {
+                                if (this.intellisenseActive == true)
+                                {
+                                    this.HideIntellisense();
+                                }
+                            }
                         }
                         else
                         {
@@ -782,19 +789,6 @@ namespace Scripting.Controls
             }
         }
 
-        private Intellisense ParseItems(List<string> found, int index)
-        {
-            var sense = new Intellisense();
-
-            foreach (string itemword in found)
-            {
-                var word = new AutoCompleteWord();
-                word.ImageIndex = index;
-                word.ItemWord = itemword;
-                sense.Items.Add(word);
-            } return sense;
-        }
-
         #endregion
 
         #region Codedrawing
@@ -802,74 +796,73 @@ namespace Scripting.Controls
         // Paints the background plus the border of the CodeEditor
         protected override void OnPaintBackground(PaintEventArgs e)
         {
-            var rect = new Rectangle(0, 0, base.Width - 1, base.Height - 1);
-            var rect2 = new Rectangle(1, 1, base.Width - 2, base.Height - 2);
-            var rect3 = new Rectangle(49, 1, base.Width - 50, base.Height - 2);
-            var pnt = new Point(48, 1); var pnt2 = new Point(48, base.Height - 2);
+            var border_rect = new Rectangle(0, 0, base.Width - 1, base.Height - 1);
+            var back_rect = new Rectangle(1, 1, base.Width - 2, base.Height - 2);
+            var line_rect = new Rectangle(49, 1, base.Width - 50, base.Height - 2);
+            var line_point = new Point(48, 1); var pnt2 = new Point(48, base.Height - 2);
 
-            var bak = new SolidBrush(Color.White);
-            var bru = new SolidBrush(codeBackColor);
-            var pen = new Pen(codeBorderColor);
-            var lne = new Pen(lineColor);
+            var line_brush = new SolidBrush(Color.White);
+            var back_brush = new SolidBrush(codeBackColor);
+            var border_pen = new Pen(codeBorderColor);
+            var line_pen = new Pen(lineColor);
 
-            e.Graphics.FillRectangle(bru, rect2);
-            e.Graphics.FillRectangle(bak, rect3);
-            e.Graphics.DrawRectangle(pen, rect);
-            e.Graphics.DrawLine(lne, pnt, pnt2);
+            e.Graphics.FillRectangle(back_brush, back_rect);
+            e.Graphics.FillRectangle(line_brush, line_rect);
+            e.Graphics.DrawRectangle(border_pen, border_rect);
+            e.Graphics.DrawLine(line_pen, line_point, pnt2);
 
-            bru.Dispose();
-            pen.Dispose();
+            back_brush.Dispose();
+            border_pen.Dispose();
+            line_pen.Dispose();
+            line_brush.Dispose();
         }
 
         // Paints the linenumbers, their selection & more
         protected override void OnPaint(PaintEventArgs e)
         {
-            // Defines needed variables
             int scriptheight = MeasureScriptBoxHeight();
             int visibleindex = 0; var pos = new Point(0, 0);
-            int textlength = codeTextBox.TextLength;
             int selection = codeTextBox.SelectionStart;
+            int visibleLength = codeTextBox.DisplayedText.Length;
 
             int firstIndex = codeTextBox.GetCharIndexFromPosition(pos);
             int firstLine = codeTextBox.GetLineFromCharIndex(firstIndex);
-            int lastLine = codeTextBox.GetLineFromCharIndex(textlength);
             int currLine = codeTextBox.GetLineFromCharIndex(selection);
+            int lastLine = codeTextBox.GetLineFromCharIndex(firstIndex + visibleLength);
 
             // Draws the line-selection
-            int selLine = (currLine - firstLine);
-            var txt = new SolidBrush(this.codeTextBox.ForeColor);
-            var bdrect = new Rectangle(1, (selLine * scriptheight + 1), 46, scriptheight - 1);
-            var inrect = new Rectangle(2, (selLine * scriptheight + 2), 46, scriptheight - 2);
+            int selectLine = (currLine - firstLine);
+            var text_brush = new SolidBrush(this.codeTextBox.ForeColor);
+            var border_rect = new Rectangle(1, (selectLine * scriptheight + 1), 46, scriptheight - 1);
+            var inner_rect = new Rectangle(2, (selectLine * scriptheight + 2), 46, scriptheight - 2);
 
-            var pen = new Pen(this.lineBorderColor);
-            var bru = new SolidBrush(this.lineBackColor);
+            var border_pen = new Pen(this.lineBorderColor);
+            var back_brush = new SolidBrush(this.lineBackColor);
 
-            e.Graphics.FillRectangle(bru, inrect);
-            e.Graphics.DrawRectangle(pen, bdrect);
+            e.Graphics.FillRectangle(back_brush, inner_rect);
+            e.Graphics.DrawRectangle(border_pen, border_rect);
 
             for (int line = firstLine; line <= lastLine; line++)
             {
-                // Variables for each line
-                var pnt = new Point(8, visibleindex * scriptheight);
-                var numb = line.ToString();
+                var text_point = new Point(8, visibleindex * scriptheight);
+                var line_text = line.ToString();
 
-                // Loop until we have e.g "000<line>"
-                while (numb.Length < 0x4)
+                while (line_text.Length < 0x4)
                 {
-                    numb = numb.Insert(0, "0");
+                    line_text = line_text.Insert(0, "0");
                 }
 
                 // Draw the string
-                e.Graphics.DrawString(numb, Font, txt, pnt);
+                e.Graphics.DrawString(line_text, Font, text_brush, text_point);
 
                 // Increase the visible lineindex
                 visibleindex += 1;
             }
 
             // Clean-Up
-            bru.Dispose();
-            pen.Dispose();
-            txt.Dispose();
+            back_brush.Dispose();
+            border_pen.Dispose();
+            text_brush.Dispose();
         }
 
         #endregion
