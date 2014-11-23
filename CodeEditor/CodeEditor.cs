@@ -570,7 +570,7 @@ namespace Scripting.Controls
 
                             if (sublinetext.Length > 0)
                             {
-                                var founditems = new List<string>();
+                                var founditems = new List<AutoCompleteWord>();
                                 var escape = this.codeTextBox.LastWord;
 
                                 if (!string.IsNullOrEmpty(escape))
@@ -582,7 +582,7 @@ namespace Scripting.Controls
                                         var itemword = word.ItemWord;
                                         if (itemword.Contains(escape))
                                         {
-                                            founditems.Add(itemword);
+                                            founditems.Add(word);
                                         }
                                     }
 
@@ -595,7 +595,10 @@ namespace Scripting.Controls
                                         // adds the new, found items to the list
                                         this.intellisenseBox.Visible = true;
                                         this.intellisenseBox.Items.Clear();
-                                        this.intellisenseBox.AutoComplete = ParseItems(founditems, 0);
+                                        foreach (var auto in founditems)
+                                        {
+                                            this.intellisenseBox.Items.Add(auto);
+                                        }
 
                                         var itemheight = this.intellisenseBox.MyItemHeight;
                                         var textheight = MeasureScriptBoxHeight();
@@ -616,7 +619,6 @@ namespace Scripting.Controls
                                             displayedOnTop = false;
                                         }
 
-                                        // Sets properties for intellibox
                                         this.intellisenseBox.Size = size;
                                         this.intellisenseBox.Location = point;
 
@@ -674,14 +676,12 @@ namespace Scripting.Controls
             }
         }
 
-        // As this funtion is used quite often...
         private void HideIntellisense()
         {
             this.intellisenseBox.Visible = false;
             this.intellisenseActive = false;
         }
 
-        // Gets the height of one char in scriptbox
         private int MeasureScriptBoxHeight()
         {
             return TextRenderer.MeasureText(whitespace, Font).Height;
@@ -735,7 +735,6 @@ namespace Scripting.Controls
             }
         }
 
-        // Fires if a key on the intellibox is pressed
         private void OnMenuKey(object obj, KeyEventArgs arg)
         {
             var ups = (displayedOnTop ? Keys.Down : Keys.Up);
@@ -744,10 +743,8 @@ namespace Scripting.Controls
             var esc = Keys.Escape;
             var ent = Keys.Enter;
 
-            // Checks for various stuff and does some useful actions
             if (data == esc || data == back)
             {
-                // Simply hide the intellibox
                 this.codeTextBox.Focus();
             }
             else if (data == ups)
@@ -785,7 +782,6 @@ namespace Scripting.Controls
             }
         }
 
-        // Creates a new intellisense struct from found strings
         private Intellisense ParseItems(List<string> found, int index)
         {
             var sense = new Intellisense();
