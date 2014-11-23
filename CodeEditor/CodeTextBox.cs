@@ -184,11 +184,7 @@ namespace Scripting.Controls
                             // Decrease position and updates
                             // the 'subs' character for loop.
                             caret -= 1; subs = text[caret];
-                        }
-                        if (caret != 0)
-                        {
-                            caret++;
-                        }
+                        } caret++;
 
                         // We finally receive the last wort through subbing
                         // the text via our currently calculated 'caret' and
